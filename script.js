@@ -15,21 +15,45 @@ document.querySelectorAll('.nav-menu a').forEach(link => {
     });
 });
 
-// Smooth scroll for navigation links
+// Smooth scroll for navigation links + article toggle
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const headerOffset = 80;
-            const elementPosition = target.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        const href = this.getAttribute('href');
+        const target = document.querySelector(href);
+        if (!target) return;
 
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
+        // Article "Citește mai mult" toggle
+        if (href.includes('-content') && this.classList.contains('read-more-btn')) {
+            e.preventDefault();
+            const card = target.closest('.news-card');
+            if (target.classList.contains('open')) {
+                target.classList.remove('open');
+                this.textContent = 'Citește mai mult →';
+            } else {
+                e.preventDefault(); // already done
+                target.classList.add('open');
+                this.textContent = 'Închide ↑';
+            }
+            // Close other open articles in same grid
+            document.querySelectorAll('.article-full.open').forEach(open => {
+                if (open !== target) {
+                    open.classList.remove('open');
+                    const btn = open.closest('.news-card').querySelector('.read-more-btn');
+                    if (btn) btn.textContent = 'Citește mai mult →';
+                }
             });
+            return;
         }
+
+        // Navigation smooth scroll
+        e.preventDefault();
+        const headerOffset = 80;
+        const elementPosition = target.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
     });
 });
 
@@ -37,9 +61,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
     if (window.scrollY > 50) {
-        navbar.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        navbar.style.background = 'rgba(255,255,255,0.98)';
     } else {
-        navbar.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        navbar.style.background = 'var(--white)';
     }
 });
 
@@ -68,17 +92,14 @@ document.querySelectorAll('.news-card, .training-card, .nutrition-card, .profile
 
 // Active navigation link highlighting
 const sections = document.querySelectorAll('section[id]');
-
 window.addEventListener('scroll', () => {
     let current = '';
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
         if (pageYOffset >= sectionTop - 200) {
             current = section.getAttribute('id');
         }
     });
-
     document.querySelectorAll('.nav-menu a').forEach(link => {
         link.style.color = '';
         if (link.getAttribute('href') === `#${current}`) {
@@ -87,22 +108,13 @@ window.addEventListener('scroll', () => {
     });
 });
 
-// Performance optimization: Lazy loading for images (when images are added)
+// Performance: Lazy loading for images
 document.addEventListener('DOMContentLoaded', () => {
-    // Add loading="lazy" to all images
-    const images = document.querySelectorAll('img');
-    images.forEach(img => {
+    document.querySelectorAll('img').forEach(img => {
         img.setAttribute('loading', 'lazy');
     });
 });
 
-// Add to home screen prompt (for mobile)
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-});
-
-// Console welcome message
+// Console welcome
 console.log('%c800m Athletics', 'color: #e63946; font-size: 24px; font-weight: bold;');
-console.log('%cGhidul tău pentru proba de 800m', 'color: #1d3557; font-size: 14px;');
+console.log('%cGhidul tău pentru proba de 800m — 800m.ro', 'color: #1d3557; font-size: 14px;');
