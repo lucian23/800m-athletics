@@ -15,38 +15,14 @@ document.querySelectorAll('.nav-menu a').forEach(link => {
     });
 });
 
-// Smooth scroll for navigation links + article toggle
+// Smooth scroll for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         const href = this.getAttribute('href');
+        if (href === '#') return; // skip empty anchors
+        e.preventDefault();
         const target = document.querySelector(href);
         if (!target) return;
-
-        // Article "Citește mai mult" toggle
-        if (href.includes('-content') && this.classList.contains('read-more-btn')) {
-            e.preventDefault();
-            const card = target.closest('.news-card');
-            if (target.classList.contains('open')) {
-                target.classList.remove('open');
-                this.textContent = 'Citește mai mult →';
-            } else {
-                e.preventDefault(); // already done
-                target.classList.add('open');
-                this.textContent = 'Închide ↑';
-            }
-            // Close other open articles in same grid
-            document.querySelectorAll('.article-full.open').forEach(open => {
-                if (open !== target) {
-                    open.classList.remove('open');
-                    const btn = open.closest('.news-card').querySelector('.read-more-btn');
-                    if (btn) btn.textContent = 'Citește mai mult →';
-                }
-            });
-            return;
-        }
-
-        // Navigation smooth scroll
-        e.preventDefault();
         const headerOffset = 80;
         const elementPosition = target.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
@@ -54,6 +30,30 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             top: offsetPosition,
             behavior: 'smooth'
         });
+    });
+});
+
+// Article "Citește mai mult" toggle
+document.querySelectorAll('.read-more').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const card = this.closest('.news-card');
+        const full = card.querySelector('.article-full');
+        if (!full) return;
+
+        if (full.classList.contains('open')) {
+            full.classList.remove('open');
+            this.textContent = 'Citește mai mult →';
+        } else {
+            // Close other open articles
+            document.querySelectorAll('.article-full.open').forEach(open => {
+                open.classList.remove('open');
+                const otherBtn = open.closest('.news-card').querySelector('.read-more');
+                if (otherBtn) otherBtn.textContent = 'Citește mai mult →';
+            });
+            full.classList.add('open');
+            this.textContent = 'Închide ↑';
+        }
     });
 });
 
